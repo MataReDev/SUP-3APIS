@@ -2,7 +2,11 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    // _id: Number,
+    //_id: Number,
+    id:{
+        type: Number,
+        required: true
+    },
     email: {
         type: String,
         lowercase: true,
@@ -10,13 +14,14 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
-    isAdmin: {
-        type: Boolean,
+    pseudo:{
+        type: String,
+        unique: true,
         required: true
     },
-    personnage:{
+    role: {
         type: String,
-        enum: ['Elf', 'Mage de feu', "Nain", "Ogre"],
+        enum: ['User', 'Employee'],
         required: true
     }
 })
