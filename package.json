@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/MataReDev/SUP-3APIS/issues"
   },
-  "homepage": "https://github.com/MataReDev/SUP-3APIS#readme"
+  "homepage": "https://github.com/MataReDev/SUP-3APIS#readme",
+  "dependencies": {
+    "mongoose": "^6.8.1"
+  }
 }
