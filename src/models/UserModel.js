@@ -1,8 +1,6 @@
-// Exemple de modèle pour lié à la bdd
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    //_id: Number,
     id:{
         type: Number,
         required: true
@@ -19,10 +17,18 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
+    password: {
+        type: String,
+        required: true
+    },
     role: {
         type: String,
         enum: ['User', 'Employee'],
         required: true
+    },
+    isAdmin: {
+        type: Boolean,
+        required: ture
     }
 })
 
