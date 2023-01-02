@@ -1,19 +1,16 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
-
+const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI;
-mongoose.set('strictQuery', false);
-module.exports.connect = () =>  {
-    mongoose.connect(MONGODB_URI,false
-    //     , error => {
-    //     if (error) {
-    //         console.error('Connection failed');
-    //         console.log(error);
-    //     } else {
-    //         if (callback) {
-    //             callback(mongoose)
-    //         }
-    //     }
-    // }
-    )
+
+module.exports.connect = async (callback) => {
+    mongoose.set("strictQuery", false);
+    mongoose.connect(MONGODB_URI, error => {
+            if (error) {
+                console.error("Connection failed")
+                console.log(error);
+            } else {
+                if (callback) {
+                    callback(mongoose)
+                }
+            }
+    })
 }

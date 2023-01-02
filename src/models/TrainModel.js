@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const TrainSchema = new mongoose.Schema({
     id:{
@@ -23,4 +23,4 @@ const TrainSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Train', TrainSchema)
+module.exports = mongoose.model("Train", TrainSchema)

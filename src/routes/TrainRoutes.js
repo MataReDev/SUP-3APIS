@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 
 const router = express.Router();
 
-const Train = require('../models/TrainModel');
+const Train = require("../models/TrainModel");
 
 router
 .get("/findTrain",
@@ -16,7 +16,7 @@ router
             res.send(trains)
         } catch (error) {
             console.error(error);
-            res.status(400).send('Don\'t Exist');
+            res.status(400).send("Don\'t Exist");
         }
 
 
@@ -27,17 +27,17 @@ router
 .post("/addTrain",
     async (req, res) => {
         try {
-            if (req.query.isAdmin == 'true') {
+            if (req.query.isAdmin == "true") {
                 let { email } = req.body
                 let trainExist = await Train.findOne({ email });
                 if (trainExist) {
-                    return res.status(400).json({ msg: 'Train already exist'})
+                    return res.status(400).json({ msg: "Train already exist"})
                 }
                 const trainAdd = await Train.create({ ... req.body });
                 res.send(trainAdd)
             }
         } catch (err) {
-            console.error('error');
+            console.error("error");
             res.status(400).json({ error })
 
         }
@@ -48,12 +48,12 @@ router
     async (req, res) => {
         console.log(req.query);
         try {
-            if (req.query.isAdmin == 'true') {
+            if (req.query.isAdmin == "true") {
                 const train = await Train.deleteOne({ "id": req.query.id})
                 res.send(train)
             }
         } catch (error) {
-            res.status(400).json({ msg: 'You dont have the permission'})
+            res.status(400).json({ msg: "You dont have the permission"})
         }
     }
 )
@@ -61,7 +61,7 @@ router
 .put("/updateTrain",
     async (req, res) => {
         try {
-            if (req.query.isAdmin == 'true') {
+            if (req.query.isAdmin == "true") {
                 const train = await Train.findByIdAndUpdate(req.query.id, { ...req.body});
                 res.send(train);
             }

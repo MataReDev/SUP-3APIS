@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 
 const router = express.Router();
 
-const TrainStation = require('../models/TrainStationModel');
+const TrainStation = require("../models/TrainStationModel");
 
 router
     .get("/allTrainStations", 
@@ -13,7 +13,7 @@ router
             }
             catch{
                 console.error(error);
-                res.status(400).send('No Train Station Exist');
+                res.status(400).send("No Train Station Exist");
             }
         }
     )
@@ -28,7 +28,7 @@ router
                 res.send(trainStations)
             } catch (error) {
                 console.error(error);
-                res.status(400).send('Don\'t Exist');
+                res.status(400).send("Don\'t Exist");
             }
         }
     )
@@ -36,17 +36,17 @@ router
     .post("/addTrainStation",
         async (req, res) => {
             try {
-                if (req.query.isAdmin == 'true') {
+                if (req.query.isAdmin == "true") {
                     let { label } = req.body
                     let trainStationExist = await TrainStation.findOne({ label });
                     if (trainStationExist) {
-                        return res.status(400).json({ msg: 'TrainStation already exist'})
+                        return res.status(400).json({ msg: "TrainStation already exist"})
                     }
                     const trainStationAdd = await TrainStation.create({ ... req.body });
                     res.send(trainStationAdd)
                 }
             } catch (err) {
-                console.error('error');
+                console.error("error");
                 res.status(400).json({ error })
             }
         }
@@ -55,19 +55,19 @@ router
         async (req, res) => {
             console.log(req.query);
             try {
-                if (req.query.isAdmin == 'true') {
+                if (req.query.isAdmin == "true") {
                     const trainStation = await TrainStation.deleteOne({ "id": req.query.id})
                     res.send(trainStation)
                 }
             } catch (error) {
-                res.status(400).json({ msg: 'You dont have the permission'})
+                res.status(400).json({ msg: "You dont have the permission"})
             }
         }
     )
     .put("/updateTrainStation",
         async (req, res) => {
             try {
-                if (req.query.isAdmin == 'true') {
+                if (req.query.isAdmin == "true") {
                     const trainStation = await TrainStation.findByIdAndUpdate(req.query.id, { ...req.body});
                     res.send(trainStation);
                 }

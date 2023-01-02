@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const TrainStationSchema = new mongoose.Schema({
     id:{
@@ -26,4 +26,4 @@ const TrainStationSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('TrainsStation', TrainStationSchema)
+module.exports = mongoose.model("TrainsStation", TrainStationSchema)
