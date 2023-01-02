@@ -1,9 +1,9 @@
-// Seul un admin peut créer une station de train
 const mongoose = require('mongoose');
 
 const TrainStationSchema = new mongoose.Schema({
     id:{
         type: Number,
+        unique: true,
         required: true
     },
     label: {

@@ -48,7 +48,6 @@ router
             } catch (err) {
                 console.error('error');
                 res.status(400).json({ error })
-
             }
         }
     )
@@ -78,6 +77,5 @@ router
             }
         }
     )
-
 
 module.exports = router

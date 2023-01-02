@@ -20,8 +20,7 @@ const TrainSchema = new mongoose.Schema({
     time_of_departure: {
         type: Date,
         required: true
-        //200*200px maximum -> Si + grand redimenssionner
     }
 })
 
-module.exports = mongoose.model('TrainsStation', TrainSchema)
+module.exports = mongoose.model('Train', TrainSchema)

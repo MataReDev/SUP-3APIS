@@ -1,27 +1,29 @@
 const express = require('express');
+const database = require('./config/mongoose');
 const mongoose = require('mongoose');
+const PORT = process.env.DEV_PORT;
 
-const config = require('./configs/config.json');
+const userRoutes = require('./src/routes/UserRoute');
+const trainRoutes = require('./src/routes/TrainRoutes');
+const trainStationRoutes = require('./src/routes/TrainStationRoutes');
 
-const userRoutes = require('./src/routes/userRoutes');
 
 const app = express();
-const urlencodedParser = express.urlencoded({ extended: false});
+const urlencodedParser = express.urlencoded({ extended: false });
+
+database.connect();
 
 app.use(urlencodedParser);
-app.use(express.json());
-
-mongoose.Promise = global.Promise;
-mongoose.connect(config.db.uri, {
-    // Do true
-})
+app.use(express.json);
 
 const db = mongoose.connection;
-db.on("err", (err) => {
-    console.log(err);
-})
+db.on('error', (error) => console.error(error));
+db.once('open', () => console.log('Database connected'));
 
-app.use("/users",userRoutes);
-app.listen(config.port, () => {
-    console.log(`Server is running on port ${config.port}`);
+app.use('/user',userRoutes);
+app.use('/train',trainRoutes);
+app.use('/trainstation',trainStationRoutes);
+
+app.listen(PORT, () => {
+    console.log(`App listenging on ${PORT}`);
 })

@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
-const MONGODB_URI = process.env.MONGODB_URI;
+require('dotenv').config();
 
+const MONGODB_URI = process.env.MONGODB_URI;
+mongoose.set('strictQuery', false);
 module.exports.connect = () =>  {
-    mongoose.connect(MONGODB_URI
+    mongoose.connect(MONGODB_URI,false
     //     , error => {
     //     if (error) {
     //         console.error('Connection failed');
