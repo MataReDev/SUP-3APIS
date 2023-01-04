@@ -5,57 +5,71 @@ const router = express.Router();
 const User = require("../models/UserModel");
 
 router
+  /* SING UP */
   .post("/signup", async (req, res) => {
-    console.log(req.body);
+    // Récupérez les données de l'utilisateur à partir de la requête
+    const { username, email, password, isAdmin } = req.body;
 
-    const { email, pseudo } = req.body;
-
-    try {
-      user = new User({
-        email,
-        pseudo,
-      });
-      await user.save();
-    } catch (error) {
-      console.error("error");
-      res.status(500).send("Error lors de la sauvegarde");
+    // Validez les données de l'utilisateur
+    if (!username || !email || !password) {
+      return res.status(400).send({ message: "Veuillez fournir un pseudo, un email et un mot de passe valides." });
     }
 
-    // try {
-    // let { email } = req.body.email
-    // let userExist = await User.findOne({ email });
-    // if (userExist) {
-    //     return res.status(400).json({ msg: "User already exist"})
-    // }
-    // let newUser = new User.create({
-    //     email: req.body.email,
-    //     pseudo: req.body.pseudo
-    // });
-    // newUser.save();
-    // return res.status(200).json({msg: newUser})
+    // Vérifiez si l'utilisateur existe déjà en utilisant son email
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).send({ message: "Cet utilisateur existe déjà." });
+    }
 
-    // } catch (err) {
-    //     console.error("error");
-    //     res.status(400).json({ error })
+    // Hash le mot de passe de l'utilisateur avant de l'enregistrer en utilisant un algorithme de hachage sécurisé comme bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // }
+    // Créez un nouvel utilisateur avec les données fournies
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword,
+      isAdmin
+    });
+
+    // Enregistrez l'utilisateur dans la base de données
+    await user.save();
+
+    // Envoyez une réponse de succès au client
+    res.send({ message: "Utilisateur enregistré avec succès." });
   })
-  // Read User
-  .get("/readUser", async (req, res) => {
-    // try {
-    //     req.props =  {};
-    //     if (req.query) for (var attrname in req.query) {
-    //         req.props[attrname] = req.query[attrname];
-    //     }
-    //     const users = await User.find(req.props);
-    //     res.send(users)
-    // } catch (error) {
-    //     console.error(error);
-    //     res.status(400).send("Don\'t Exist");
-    // }
-    res.status(200).send("Ok");
+
+  /* LOGIN */
+  .post("/login", async (req, res) => {
+    // Récupérez les données de l'utilisateur à partir de la requête
+    const { email, password } = req.body;
+  
+    // Validez les données de l'utilisateur
+    if (!email || !password) {
+      return res.status(400).send({ message: "Veuillez fournir un email et un mot de passe valides." });
+    }
+  
+    // Cherchez l'utilisateur en utilisant son email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).send({ message: "Aucun utilisateur n'a été trouvé avec cet email." });
+    }
+  
+    // Vérifiez si le mot de passe de l'utilisateur correspond au hash stocké en utilisant bcrypt.compare
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(400).send({ message: "Mot de passe incorrect." });
+    }
+  
+    // Générez un jeton de connexion en utilisant un outil comme jsonwebtoken
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  
+    // Envoyez le jeton au client dans la réponse
+    res.send({ token });
   })
-  // Delete User
+
+
+  /* Delete User */
   // Suppression uniquement par l"utilisateur lui même ou par un admin
   .delete("/deleteUser", async (req, res) => {
     console.log(req.query);

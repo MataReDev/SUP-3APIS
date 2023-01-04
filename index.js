@@ -19,9 +19,6 @@ db.once("open", () => console.log("Database connected"));
 /* EXPRESS */
 const app = express();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json);
-
 app.use("/user",userRoutes);
 // app.use("/train",trainRoutes);
 // app.use("/trainstation",trainStationRoutes);
@@ -29,5 +26,3 @@ app.use("/user",userRoutes);
 app.listen(PORT, () => {
     console.log(`App listening on ${PORT}`);
 })
-
-console.log(process.env);
