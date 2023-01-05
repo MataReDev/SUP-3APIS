@@ -3,10 +3,11 @@ const PORT = process.env.PORT;
 const database = require("./config/mongoose");
 const express = require("express");
 const mongoose = require("mongoose");
+const bodyParser = require("body-parser")
 
 const userRoutes = require("./src/routes/UserRoute");
-// const trainRoutes = require("./src/routes/TrainRoutes");
-// const trainStationRoutes = require("./src/routes/TrainStationRoutes");
+const trainRoutes = require("./src/routes/TrainRoutes");
+const trainStationRoutes = require("./src/routes/TrainStationRoutes");
 
 /* MONGO */
 database.connect();
@@ -18,10 +19,13 @@ db.once("open", () => console.log("Database connected"));
 
 /* EXPRESS */
 const app = express();
+app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 app.use("/user",userRoutes);
-// app.use("/train",trainRoutes);
-// app.use("/trainstation",trainStationRoutes);
+app.use("/train",trainRoutes);
+app.use("/trainstation",trainStationRoutes);
 
 app.listen(PORT, () => {
     console.log(`App listening on ${PORT}`);
