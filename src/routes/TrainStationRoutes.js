@@ -1,81 +1,96 @@
+
+// Modules
 const express = require("express");
 
+//Router
 const router = express.Router();
 
+// Modèle
 const TrainStation = require("../models/TrainStationModel");
 
+//Middleware
+const authMiddleware = require('../middlewares/auth');
+const resizeMiddleware = require('../middlewares/resize');
+
 router
-    .get("/allTrainStations", 
-        async (req, res) => {
-            try {
-                const TrainStations = await TrainStation.find();
-                res.send(TrainStations);
-            }
-            catch{
-                console.error(error);
-                res.status(400).send("No Train Station Exist");
-            }
+    // Lister toutes les stations de trains
+        .get('/', (req, res) => {
+        let sort = req.query.sort || { name: 1 };
+
+        TrainStation.find()
+            .sort(sort)
+            .then(trainStations => res.send(trainStations))
+            .catch(err => res.status(500).send(err));
+    })
+
+    // Créer une station de train
+    .post('/', authMiddleware, resizeMiddleware, (req, res) => {
+        if (!req.user.admin) {
+            return res.status(403).send({ error: 'Seul les admins peuvent créer des stations de trains' });
         }
-    )
-    .get("/findTrainStation",
-        async (req, res) => {
-            try {
-                req.props =  {};
-                if (req.query) for (var attrname in req.query) {
-                    req.props[attrname] = req.query[attrname];
-                }
-                const trainStations = await TrainStation.find(req.props);
-                res.send(trainStations)
-            } catch (error) {
-                console.error(error);
-                res.status(400).send("Don\'t Exist");
+
+        let trainStation = new TrainStation({
+            name: req.body.name,
+            open_hour: req.body.open_hour,
+            close_hour: req.body.close_hour,
+            image: req.body.image
+        });
+        trainStation
+            .save()
+            .then(trainStation => res.send(trainStation))
+            .catch(err => res.status(500).send(err));
+    })
+
+    // Récupérer une stastion de train grâce à son id
+    .get('/:id', (req, res) => {
+        TrainStation.findById(req.params.id)
+            .then(trainStation => {
+            if (!trainStation) {
+                return res.status(404).send({ error: 'Station de train introuvable' });
             }
+            res.send(trainStation);
+            })
+            .catch(err => res.status(500).send(err));
+    })
+
+    // Mettre à jour une station de trains
+    .put('/:id', authMiddleware, resizeMiddleware, (req, res) => {
+        if (!req.user.admin) {
+            return res.status(403).send({ error: 'Seul les admins peuvent mettre à jour les stations de trains' });
         }
-    )
-    /* Seul un admin peut ajouter / modifier / supprimer une station de Train*/
-    .post("/addTrainStation",
-        async (req, res) => {
-            try {
-                if (req.query.isAdmin == "true") {
-                    let { label } = req.body
-                    let trainStationExist = await TrainStation.findOne({ label });
-                    if (trainStationExist) {
-                        return res.status(400).json({ msg: "TrainStation already exist"})
-                    }
-                    const trainStationAdd = await TrainStation.create({ ... req.body });
-                    res.send(trainStationAdd)
-                }
-            } catch (err) {
-                console.error("error");
-                res.status(400).json({ error })
+
+        TrainStation.findByIdAndUpdate(req.params.id, {
+            name: req.body.name,
+            open_hour: req.body.open_hour,
+            close_hour: req.body.close_hour,
+            image: req.body.image
+        }, { new: true })
+            .then(trainStation => {
+            if (!trainStation) {
+                return res.status(404).send({ error: 'Station de train introuvable' });
             }
+            res.send(trainStation);
+            })
+            .catch(err => res.status(500).send(err));
+    })
+
+    // Suprimmer une station de trains
+    .delete('/:id', authMiddleware, (req, res) => {
+        if (!req.user.admin) {
+            return res.status(403).send({ error: 'Seul les admins peuvent supprimer des stations de trains' });
         }
-    )
-    .delete("/deleteTrainStation",
-        async (req, res) => {
-            console.log(req.query);
-            try {
-                if (req.query.isAdmin == "true") {
-                    const trainStation = await TrainStation.deleteOne({ "id": req.query.id})
-                    res.send(trainStation)
-                }
-            } catch (error) {
-                res.status(400).json({ msg: "You dont have the permission"})
+
+        TrainStation.findByIdAndDelete(req.params.id)
+        .then(trainStation => {
+            if (!trainStation) {
+            return res.status(404).send({ error: 'Station de train introuvable' });
             }
-        }
-    )
-    .put("/updateTrainStation",
-        async (req, res) => {
-            try {
-                if (req.query.isAdmin == "true") {
-                    const trainStation = await TrainStation.findByIdAndUpdate(req.query.id, { ...req.body});
-                    res.send(trainStation);
-                }
-            } catch (error) {
-                console.log(error);
-                res.status(400).json({error})
-            }
-        }
-    )
+            res.send(trainStation);
+        })
+        .catch(err => res.status(500).send(err));
+    });
+
+
+
 
 module.exports = router

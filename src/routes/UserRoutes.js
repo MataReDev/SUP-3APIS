@@ -1,22 +1,18 @@
-/*
-Documents utilisées:
-Cours : https://canvas.supinfo.com/courses/507
-Express : https://expressjs.com/en/5x/api.html
-JWT : https://github.com/auth0/node-jsonwebtoken
-Bcrypt : https://www.npmjs.com/package/bcrypt
-*/
-
-// Require
+// Modules
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
+//Router
 const router = express.Router();
 
-// User model
+// Modèle
 const User = require("../models/UserModel");
-const auth = require("../middlewares/middleware.js");
 
-// POST api/users/register
+// Middleware
+const auth = require("../middlewares/auth.js");
+
+// POST /user/register
 router
   .post("/signup", async (req, res) => {
     try {
@@ -55,7 +51,7 @@ router
         { expiresIn: 3600 },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          res.status(200).json({ token });
         }
       );  
     } catch (err) {
@@ -64,7 +60,7 @@ router
     }
   })
 
-  // POST api/users/login
+  // POST /user/login
   .post("/login", async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -104,7 +100,7 @@ router
         { expiresIn: 3600 },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          res.status(200).json({ token });
         }
       );
     } catch (err) {
@@ -113,38 +109,38 @@ router
     }
   })
 
-  // GET api/users/:id
-  .get("/:id", auth, async (req, res) => {
+  // GET /user/:username
+  .get("/:username", auth, async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
-
+      const user = await User.find({'username' : req.body.username});
+      
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
       }
 
       // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
-      if (req.user.role !== "Employee" && req.user.id !== user.id) {
+      if (req.user.role !== "Employee" && req.user.username !== user.username) {
         return res.status(401).json({ message: "Non autorisé" });
       }
 
-      res.json(user);
+      res.status(200).json(user);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
     }
   })
 
-  // PUT api/users/:id
-  .put("/:id", auth, async (req, res) => {
+  // PUT /user/:username
+  .put("/:username", auth, async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.find({'username' : req.params.username});
 
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
       }
 
       // Only the user or an admin can update the user's information
-      if (req.user.id !== user.id && req.user.role !== "Admin") {
+      if (req.user.username !== user.username && req.user.role !== "Admin") {
         return res.status(401).json({ message: "Non autorisé" });
       }
 
@@ -163,29 +159,29 @@ router
       }
 
       await user.save();
-      res.json(user);
+      res.status(200).json(user);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
     }
   })
 
-  // DELETE api/users/:id
-  .delete("/:id", auth, async (req, res) => {
+  // DELETE /user/:username
+  .delete("/:username", auth, async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.find({'username' : req.params.username});
 
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
       }
 
       // Only the user or an admin can delete the user
-      if (req.user.id !== user.id && req.user.role !== "Admin") {
+      if (req.user.username !== user.username && req.user.role !== "Admin") {
         return res.status(401).json({ message: "Non autorisé" });
       }
 
       await user.remove();
-      res.json({ message: "Utilisateur supprimé" });
+      res.status(200).json({ message: "Utilisateur supprimé" });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
