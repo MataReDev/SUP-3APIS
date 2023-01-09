@@ -45,6 +45,8 @@ router
         user: {
           id: newUser.id,
           role: newUser.role,
+          pseudo: newUser.pseudo,
+          email: user.email
         },
       };
 
@@ -94,6 +96,8 @@ router
         user: {
           id: user.id,
           role: user.role,
+          pseudo: user.pseudo,
+          email: user.email
         },
       };
 
