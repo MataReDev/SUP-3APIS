@@ -12,7 +12,7 @@ const User = require("../models/UserModel");
 // Middleware
 const auth = require("../middlewares/auth.js");
 
-// POST /user/register
+// POST /user/signup
 router
   .post("/signup", async (req, res) => {
     try {
@@ -133,7 +133,8 @@ router
   // PUT /user/:username
   .put("/:username", auth, async (req, res) => {
     try {
-      const user = await User.find({'username' : req.params.username});
+      const userGet = await User.find({'username' : req.body.username});
+      const user = userGet[0];
 
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
@@ -160,6 +161,7 @@ router
 
       await user.save();
       res.status(200).json(user);
+
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");

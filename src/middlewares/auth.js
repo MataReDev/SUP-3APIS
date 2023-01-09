@@ -16,7 +16,6 @@ const auth = async (req, res, next) => {
       // On vérifie le token et on récupère les infos de l'utilisateur
       const jwt_token = jwt.verify(token, process.env.JWT_SECRET);
       const user = User.findById(jwt_token.id);
-      console.log(user)
       req.user = user;
       next();
     } catch (err) {
