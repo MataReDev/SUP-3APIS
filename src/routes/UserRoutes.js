@@ -25,7 +25,9 @@ router
       // Vérification si le mail ou le pseudo existe déjà
       const user = await User.findOne({ $or: [{ email }, { pseudo }] });
       if (user) {
-        return res.status(400).json({ message: "Email ou pseudo déjà utilisé" });
+        return res
+          .status(400)
+          .json({ message: "Email ou pseudo déjà utilisé" });
       }
 
       // Je créé le nouvel utilisateur
@@ -53,7 +55,7 @@ router
         { expiresIn: 3600 },
         (err, token) => {
           if (err) throw err;
-          res.status(200).json({ token });
+          res.json({ token });
         }
       );  
     } catch (err) {
@@ -72,7 +74,9 @@ router
       // Il faut éviter de dire l'adresse mail est mauvaise
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ message: "Mauvaise adresse mail ou mot de passe" });
+        return res
+          .status(400)
+          .json({ message: "Mauvaise adresse mail ou mot de passe" });
       }
 
       // Verif le password est bon avec le mail
@@ -80,7 +84,9 @@ router
       // Il faut éviter de dire le mot de passe est mauvais
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({ message: "Mauvaise adresse mail ou mot de passe" });
+        return res
+          .status(400)
+          .json({ message: "Mauvaise adresse mail ou mot de passe" });
       }
 
       // Je créé la "session" pour rester connecté
@@ -98,7 +104,7 @@ router
         { expiresIn: 3600 },
         (err, token) => {
           if (err) throw err;
-          res.status(200).json({ token });
+          res.json({ token });
         }
       );
     } catch (err) {
@@ -157,7 +163,7 @@ router
       }
 
       await user.save();
-      res.status(200).json(user);
+      res.json(user);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
@@ -179,7 +185,7 @@ router
       }
 
       await user.remove();
-      res.status(200).json({ message: "Utilisateur supprimé" });
+      res.json({ message: "Utilisateur supprimé" });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");

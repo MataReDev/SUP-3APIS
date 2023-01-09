@@ -1,81 +1,107 @@
+
+// Modules
 const express = require("express");
 
+//Router
 const router = express.Router();
 
+// Modèle
 const TrainStation = require("../models/TrainStationModel");
 
+//Middleware
+const authMiddleware = require('../middlewares/auth');
+const resizeMiddleware = require('../middlewares/resize');
+
 router
-    .get("/allTrainStations", 
-        async (req, res) => {
-            try {
-                const TrainStations = await TrainStation.find();
-                res.send(TrainStations);
+    // Lister toutes les stations de trains
+    .get('/', (req, res) => {
+        TrainStation.find({}, (error, trainStations) => {
+            if (error) {
+              res.status(500).send(error);
+            } else {
+              res.send(trainStations);
             }
-            catch{
-                console.error(error);
-                res.status(400).send("No Train Station Exist");
+          });
+    })
+
+    // Créer une station de train
+    .post('/', authMiddleware, resizeMiddleware, (req, res) => {
+        try {
+            if (req.user.role !== 'Admin') {
+                return res.status(403).send({ error: 'Seul les admins peuvent créer des stations de trains' });
             }
+            const trainStation = new TrainStation({
+                label: req.body.label,
+                image: req.body.imageGare,
+                open_hour: req.body.open_hour,
+                close_hour: req.body.close_hour
+            });
+            trainStation.save()
+            res.status(200).json({ trainStation });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Erreur serveur");
         }
-    )
-    .get("/findTrainStation",
-        async (req, res) => {
-            try {
-                req.props =  {};
-                if (req.query) for (var attrname in req.query) {
-                    req.props[attrname] = req.query[attrname];
+    })
+
+    // GET /trainstations/:label
+    .get('/:label', (req, res) => {
+        TrainStation.find({label: req.params.label})
+            .then(trainStation => {
+            if (!trainStation) {
+                return res.status(404).send({ error: 'Station de train introuvable' });
+            }
+            res.status(200).send(trainStation);
+            })
+            .catch(err => res.status(500).send(err));
+    })
+
+    // Mettre à jour une station de trains
+    .put('/:label', authMiddleware, resizeMiddleware, async (req, res) => {
+        try {
+            if (req.user.role !== 'Admin') {
+                return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
+            }
+            req.props = {};
+            
+            console.log(req.body.label);
+        
+            // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
+            if (req.body)
+            for (let attrname in req.body) {
+                console.log(attrname);
+                req.props[attrname] = req.body[attrname];
+            }
+            console.log(req.props);
+        
+            const trainStation = TrainStation.find({label: req.params.label})
+            // Utilisez le modèle de schéma pour récupérer tous les utilisateurs de la base de données
+            trainStation.update(req.props, (err, trainStation) => {
+                if (err) {
+                    throw err;
+                } else {
+                    res.status(200).send("Gare mise à jour");
                 }
-                const trainStations = await TrainStation.find(req.props);
-                res.send(trainStations)
-            } catch (error) {
-                console.error(error);
-                res.status(400).send("Don\'t Exist");
-            }
+            });
+        } catch (err) {
+          console.error(err.message);
+          res.status(500).send("Erreur serveur");
         }
-    )
-    /* Seul un admin peut ajouter / modifier / supprimer une station de Train*/
-    .post("/addTrainStation",
-        async (req, res) => {
-            try {
-                if (req.query.isAdmin == "true") {
-                    let { label } = req.body
-                    let trainStationExist = await TrainStation.findOne({ label });
-                    if (trainStationExist) {
-                        return res.status(400).json({ msg: "TrainStation already exist"})
-                    }
-                    const trainStationAdd = await TrainStation.create({ ... req.body });
-                    res.send(trainStationAdd)
-                }
-            } catch (err) {
-                console.error("error");
-                res.status(400).json({ error })
-            }
+    })
+
+    // DELETE /trainstation/:label
+    .delete('/:label', authMiddleware, async (req, res) => {
+        if (req.user.role !== 'Admin') {
+            return res.status(403).send({ error: 'Seul les admins peuvent supprimer des stations de trains' });
         }
-    )
-    .delete("/deleteTrainStation",
-        async (req, res) => {
-            console.log(req.query);
-            try {
-                if (req.query.isAdmin == "true") {
-                    const trainStation = await TrainStation.deleteOne({ "id": req.query.id})
-                    res.send(trainStation)
-                }
-            } catch (error) {
-                res.status(400).json({ msg: "You dont have the permission"})
-            }
+        
+        try{
+            await TrainStation.remove({label: req.params.label});
+            res.status(200).send("Gare suppimée")
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Erreur serveur");
         }
-    )
-    .put("/updateTrainStation",
-        async (req, res) => {
-            try {
-                if (req.query.isAdmin == "true") {
-                    const trainStation = await TrainStation.findByIdAndUpdate(req.query.id, { ...req.body});
-                    res.send(trainStation);
-                }
-            } catch (error) {
-                console.log(error);
-                res.status(400).json({error})
-            }
-        }
-    )
+    });
 
 module.exports = router
