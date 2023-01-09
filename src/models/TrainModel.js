@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const TrainSchema = new mongoose.Schema({
     id:{
-        type: Number,
+        type: String,
         required: true,
         unique: true
     },
@@ -21,9 +21,9 @@ const TrainSchema = new mongoose.Schema({
         required: true
     }, 
     time_of_departure: {
-        type: Date,
+        type: String,
         required: true
     }
 })
 
-module.exports = mongoose.model("Train", TrainSchema)
+module.exports = mongoose.model("trains", TrainSchema)

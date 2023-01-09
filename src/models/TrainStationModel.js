@@ -24,4 +24,4 @@ const TrainStationSchema = new mongoose.Schema({
     }]
 })
 
-module.exports = mongoose.model("TrainStation", TrainStationSchema)
+module.exports = mongoose.model("trainstations", TrainStationSchema)

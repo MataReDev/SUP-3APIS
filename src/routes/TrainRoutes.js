@@ -7,80 +7,110 @@ const router = express.Router();
 
 // Modèle
 const Train = require("../models/TrainModel");
+const TrainStation = require('../models/TrainStationModel');
 
 // Middleware
 const authMiddleware = require('../middlewares/auth');
 
 router
     // Lister tous les trains
-    .get('/', (req, res) => {
-        // Lancement de la recherche avec les parametres définis au dessus
-        Train.find()
-            .then(trains => res.status(200).send(trains))
-            .catch(err => res.status(500).send(err));
+    .get('/', async (req, res) => {
+        await Train.find({}, (error, trainStations) => {
+            if (error) {
+              res.status(500).send(error);
+            } else {
+              res.send(trainStations);
+            }
+        });
     })
 
     // ADMIN - Créer un train
-    .post('/', authMiddleware, (req, res) => {
-        // Comme seul les admins ont accès à cette action, on vérifie si il est admins
-        if (!req.user.admin) {
-            return res.status(403).send({ error: 'Seul les admins peuvent mettre à jour un train' });
-        }
+    .post('/', authMiddleware, async (req, res) => {
+        try {
+            if (req.user.role !== 'Admin') {
+                return res.status(403).send({ error: 'Seul les admins peuvent créer des stations de trains' });
+            }
+            const startStation = await TrainStation.findOne({label: req.body.start_station});
+            const endStation = await TrainStation.findOne({label: req.body.end_station});
 
-        let train = new Train(req.body);
-        train
-            .save()
-            .then(train => res.status(200).send(train))
-            .catch(err => res.status(500).send(err));
+            const train = new Train({
+                id: req.body.id,
+                label: req.body.label,
+                start_station: startStation._id,
+                end_station: endStation._id,
+                time_of_departure: req.body.time_of_departure
+            });
+            train.save()
+            res.status(200).json({ train });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Erreur serveur");
+        }
     })
 
-    // Rechercher un train
-    .get('/:id', (req, res) => {
-        Train.findById(req.params.id)
-            .then(train => {
-                if (!train) {
-                    return res.status(404).send({ error: 'Train non trouvé' });
-                }
-                res.status(200).send(train);
-            })
-            .catch(err => res.status(500).send(err));
+    // GET /train/:id
+    .get('/:id', async (req, res) => {
+        try {
+            const train = await Train.findOne({id: req.params.id});
+      
+            if (!train) {
+              return res.status(404).json({ message: "Train inexistant" });
+            }
+      
+            res.status(200).json(train);
+
+          } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Erreur serveur");
+          }
     })
 
     // ADMIN - Mettre à jour un train
-    .put('/:id', authMiddleware, (req, res) => {
-        // Comme seul les admins ont accès à cette action, on vérifie si il est admins
-        if (!req.user.admin) {
-            return res.status(403).send({ error: 'Seul les admins peuvent mettre à jour un train' });
-        }
-
-        // On utilise findByIdAndUpdate pour recherche un train et le mettre à jour dans la foulée
-        Train.findByIdAndUpdate(req.params.id, req.body, { new: true })
-            .then(train => {
-                if (!train) {
-                    return res.status(404).send({ error: 'Train non trouvé' });
+    .put('/:id', authMiddleware, async (req, res) => {
+        try {
+            if (req.user.role !== 'Admin') {
+                return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
+            }
+            req.props = {};
+        
+            // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
+            if (req.body)
+            for (let attrname in req.body) {
+                console.log(attrname);
+                req.props[attrname] = req.body[attrname];
+            }
+        
+            const train = Train.find({id: req.params.id})
+            if (!train) {
+                return res.status(404).json({ message: "Train inexistant" });
+              }
+            // Utilisez le modèle de schéma pour récupérer tous les utilisateurs de la base de données
+            train.update(req.props, (err, train) => {
+                if (err) {
+                    throw err;
+                } else {
+                    res.status(200).send("Gare mise à jour");
                 }
-                res.status(200).send(train);
-            })
-            .catch(err => res.status(500).send(err));
+            });
+        } catch (err) {
+          console.error(err.message);
+          res.status(500).send("Erreur serveur");
+        }
     })
 
     // ADMIN - Supprimer un train
-    .delete('/:id', authMiddleware, (req, res) => {
-        // Comme seul les admins ont accès à cette action, on vérifie si il est admins
-        if (!req.user.admin) {
-            return res.status(403).send({ error: 'Suel les admins peuvent supprimer des train' });
+    .delete('/:id', authMiddleware, async (req, res) => {
+        if (req.user.role !== 'Admin') {
+            return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
         }
 
-        // On utilise findByIdAndDelete pour recherche un train et le supprimer dans la foulée
-        Train.findByIdAndDelete(req.params.id)
-            .then(train => {
-                if (!train) {
-                    return res.status(404).send({ error: 'Train not found' });
-                }
-                
-                res.status(200).send(train);
-            })
-            .catch(err => res.status(500).send(err));
+        try{
+            await Train.remove({id: req.params.id});
+            res.status(200).send("Train suppimé")
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Erreur serveur");
+        }
     })
 
 module.exports = router

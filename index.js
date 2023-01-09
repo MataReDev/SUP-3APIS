@@ -19,6 +19,7 @@ const bodyParser = require("body-parser")
 const userRoutes = require("./src/routes/UserRoutes");
 const trainRoutes = require("./src/routes/TrainRoutes");
 const trainStationRoutes = require("./src/routes/TrainStationRoutes");
+const ticketRoutes = require("./src/routes/TicketRoutes");
 
 /* MONGO */
 database.connect();
@@ -37,6 +38,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/user",userRoutes);
 app.use("/train",trainRoutes);
 app.use("/trainstation",trainStationRoutes);
+app.use("/ticket",ticketRoutes);
 
 /* AFFICHAGE DU PORT SUR LEQUEL ON EST */
 app.listen(PORT, () => {

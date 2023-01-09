@@ -10,9 +10,11 @@ Bcrypt : https://www.npmjs.com/package/bcrypt
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
+// Router
 const router = express.Router();
 
-// User model
+// Modèle
 const User = require("../models/UserModel");
 const auth = require("../middlewares/auth");
 
@@ -117,17 +119,17 @@ router
     }
   })
 
-  // GET api/users/:id
-  .get("/:id", auth, async (req, res) => {
+  // GET api/users/:pseudo
+  .get("/:pseudo", auth, async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.findOne({pseudo: req.params.pseudo});
 
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
       }
 
       // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
-      if (req.user.role !== "Employee" && req.user.id !== user.id) {
+      if (req.user.role !== "Employee" && req.user.pseudo !== user.pseudo) {
         return res.status(401).json({ message: "Non autorisé" });
       }
 
@@ -138,17 +140,17 @@ router
     }
   })
 
-  // PUT api/users/:id
-  .put("/:id", auth, async (req, res) => {
+  // PUT api/users/:pseudo
+  .put("/:pseudo", auth, async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.findOne({pseudo: req.params.pseudo});
 
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
       }
 
       // Only the user or an admin can update the user's information
-      if (req.user.id !== user.id && req.user.role !== "Admin") {
+      if (req.user.pseudo !== user.pseudo && req.user.role !== "Admin") {
         return res.status(401).json({ message: "Non autorisé" });
       }
 
@@ -174,17 +176,17 @@ router
     }
   })
 
-  // DELETE api/users/:id
-  .delete("/:id", auth, async (req, res) => {
+  // DELETE api/users/:pseudo
+  .delete("/:pseudo", auth, async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.findOne({pseudo: req.params.pseudo});
 
       if (!user) {
         return res.status(404).json({ message: "Utilisateur inexistant" });
       }
 
       // Only the user or an admin can delete the user
-      if (req.user.id !== user.id && req.user.role !== "Admin") {
+      if (req.user.pseudo !== user.pseudo && req.user.role !== "Admin") {
         return res.status(401).json({ message: "Non autorisé" });
       }
 
