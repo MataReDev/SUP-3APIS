@@ -15,9 +15,8 @@ const auth = async (req, res, next) => {
     try {
       // On vérifie le token et on récupère les infos de l'utilisateur
       const jwt_token = jwt.verify(token, process.env.JWT_SECRET);
-      const user = User.findById(jwt_token.id);
-      console.log(User.findById(jwt_token.id));
-      req.user = user;
+      console.log(jwt_token.user);
+      req.user = jwt_token.user;
       next();
     } catch (err) {
       res.status(401).json({ message: 'Le token n\'est pas bon' });

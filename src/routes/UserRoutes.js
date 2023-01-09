@@ -41,6 +41,8 @@ router
         user: {
           id: newUser.id,
           role: newUser.role,
+          pseudo: newUser.pseudo,
+          email: newUser.email
         },
       };
 
@@ -90,6 +92,8 @@ router
         user: {
           id: user.id,
           role: user.role,
+          pseudo: user.pseudo,
+          email: user.email
         },
       };
 
@@ -112,6 +116,9 @@ router
   // GET /user/find
   .get("/find", auth, async (req, res) => {
     try {
+      if (req.user.role === 'User') {
+        return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
+      }
       req.props = {};
       
       console.log(req.query.email);
@@ -141,6 +148,9 @@ router
   // PUT /user/update
   .put("/update", auth, async (req, res) => {
     try {
+      if (req.user.role !== 'Admin') {
+        return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
+      }
       req.props = {};
       
       console.log(req.query.email);
