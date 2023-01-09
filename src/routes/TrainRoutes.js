@@ -14,14 +14,8 @@ const authMiddleware = require('../middlewares/auth');
 router
     // Lister tous les trains
     .get('/', (req, res) => {
-        // Parametre pour la requête
-        let limit = req.query.limit || 10;
-        let sort = req.query.sort || { time_of_departure: 1 };
-
         // Lancement de la recherche avec les parametres définis au dessus
         Train.find()
-            .limit(limit)
-            .sort(sort)
             .then(trains => res.status(200).send(trains))
             .catch(err => res.status(500).send(err));
     })

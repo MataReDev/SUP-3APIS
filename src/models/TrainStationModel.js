@@ -17,12 +17,14 @@ const TrainStationSchema = new mongoose.Schema({
     close_hour: {
         type: Date,
         required: true
-    }, 
+    },
+    trains: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Train'
+    }], 
     image: {
-        // Regarder du coté de GridFS
         type: String,
         required: true
-        //200*200px maximum -> Si + grand redimenssionner
     }
 })
 
