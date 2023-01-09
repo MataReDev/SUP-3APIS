@@ -19,7 +19,7 @@ router
 
         TrainStation.find()
             .sort(sort)
-            .then(trainStations => res.send(trainStations))
+            .then(trainStations => res.status(200).send(trainStations))
             .catch(err => res.status(500).send(err));
     })
 
@@ -37,7 +37,7 @@ router
         });
         trainStation
             .save()
-            .then(trainStation => res.send(trainStation))
+            .then(trainStation => res.status(200).send(trainStation))
             .catch(err => res.status(500).send(err));
     })
 
@@ -48,7 +48,7 @@ router
             if (!trainStation) {
                 return res.status(404).send({ error: 'Station de train introuvable' });
             }
-            res.send(trainStation);
+            res.status(200).send(trainStation);
             })
             .catch(err => res.status(500).send(err));
     })
@@ -69,7 +69,7 @@ router
             if (!trainStation) {
                 return res.status(404).send({ error: 'Station de train introuvable' });
             }
-            res.send(trainStation);
+            res.status(200).send(trainStation);
             })
             .catch(err => res.status(500).send(err));
     })
@@ -85,12 +85,9 @@ router
             if (!trainStation) {
             return res.status(404).send({ error: 'Station de train introuvable' });
             }
-            res.send(trainStation);
+            res.status(200).send(trainStation);
         })
         .catch(err => res.status(500).send(err));
     });
-
-
-
 
 module.exports = router

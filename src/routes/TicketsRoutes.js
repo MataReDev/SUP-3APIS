@@ -21,7 +21,7 @@ ticketRouter.post('/', (req, res) => {
   let ticket = new Ticket(req.body);
   ticket
     .save()
-    .then(ticket => res.send(ticket))
+    .then(ticket => res.status(200).send(ticket))
     .catch(err => res.status(500).send(err));
 });
 
