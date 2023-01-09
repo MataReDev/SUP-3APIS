@@ -1,18 +1,22 @@
-// Modules
+/*
+Documents utilisées:
+Cours : https://canvas.supinfo.com/courses/507
+Express : https://expressjs.com/en/5x/api.html
+JWT : https://github.com/auth0/node-jsonwebtoken
+Bcrypt : https://www.npmjs.com/package/bcrypt
+*/
+
+// Require
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
-//Router
 const router = express.Router();
 
-// Modèle
+// User model
 const User = require("../models/UserModel");
+const auth = require("../middlewares/middleware.js");
 
-// Middleware
-const auth = require("../middlewares/auth.js");
-
-// POST /user/signup
+// POST api/users/register
 router
   .post("/signup", async (req, res) => {
     try {
@@ -41,8 +45,6 @@ router
         user: {
           id: newUser.id,
           role: newUser.role,
-          pseudo: newUser.pseudo,
-          email: newUser.email
         },
       };
 
@@ -53,7 +55,7 @@ router
         { expiresIn: 3600 },
         (err, token) => {
           if (err) throw err;
-          res.status(200).json({ token });
+          res.json({ token });
         }
       );  
     } catch (err) {
@@ -62,7 +64,7 @@ router
     }
   })
 
-  // POST /user/login
+  // POST api/users/login
   .post("/login", async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -92,8 +94,6 @@ router
         user: {
           id: user.id,
           role: user.role,
-          pseudo: user.pseudo,
-          email: user.email
         },
       };
 
@@ -104,7 +104,7 @@ router
         { expiresIn: 3600 },
         (err, token) => {
           if (err) throw err;
-          res.status(200).json({ token });
+          res.json({ token });
         }
       );
     } catch (err) {
@@ -113,99 +113,79 @@ router
     }
   })
 
-  // GET /user/find
-  .get("/find", auth, async (req, res) => {
+  // GET api/users/:id
+  .get("/:id", auth, async (req, res) => {
     try {
-      if (req.user.role === 'User') {
-        return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
+      const user = await User.findById(req.params.id);
+
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur inexistant" });
       }
-      req.props = {};
-      
-      console.log(req.query.email);
 
       // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
-      
-      if (req.query)
-      for (let attrname in req.query) {
-        req.props[attrname] = req.query[attrname];
+      if (req.user.role !== "Employee" && req.user.id !== user.id) {
+        return res.status(401).json({ message: "Non autorisé" });
       }
-      console.log(req.props);
 
-      // Utilisez le modèle de schéma pour récupérer tous les utilisateurs de la base de données
-      User.find(req.props, (err, user) => {
-        if (err) {
-          throw err;
-        } else {
-          res.status(200).send(user);
-        }
-      });
+      res.json(user);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
     }
   })
 
-  // PUT /user/update
-  .put("/update", auth, async (req, res) => {
+  // PUT api/users/:id
+  .put("/:id", auth, async (req, res) => {
     try {
-      if (req.user.role !== 'Admin') {
-        return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
-      }
-      req.props = {};
-      
-      console.log(req.query.email);
+      const user = await User.findById(req.params.id);
 
-      // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
-      if (req.query)
-      for (let attrname in req.query) {
-        if (attrname === "password"){
-          const salt = await bcrypt.genSalt(10);
-          req.props[attrname] = await bcrypt.hash(req.query[attrname], salt);
-          console.log("password")
-        } else {
-          console.log(attrname);
-          req.props[attrname] = req.query[attrname];
-        }
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur inexistant" });
       }
-      console.log(req.props);
 
-      // Utilisez le modèle de schéma pour récupérer tous les utilisateurs de la base de données
-      User.updateOne(req.props, (err, user) => {
-        if (err) {
-          throw err;
-        } else {
-          res.status(200).send("Utilisateur mis à jour");
-        }
-      });
+      // Only the user or an admin can update the user's information
+      if (req.user.id !== user.id && req.user.role !== "Admin") {
+        return res.status(401).json({ message: "Non autorisé" });
+      }
+
+      const { email, pseudo, password, role } = req.body;
+
+      // Update fields that are allowed to be updated
+      user.email = email || user.email;
+      user.pseudo = pseudo || user.pseudo;
+      user.password = password || user.password;
+      user.role = role || user.role;
+
+      // Hash password if it was updated
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+      }
+
+      await user.save();
+      res.json(user);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
     }
   })
 
-  // DELETE /user/:username
-  .delete("/:username", auth, async (req, res) => {
+  // DELETE api/users/:id
+  .delete("/:id", auth, async (req, res) => {
     try {
-      req.props = {};
-      
-      console.log(req.query.email);
+      const user = await User.findById(req.params.id);
 
-      // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
-      
-      if (req.query)
-      for (let attrname in req.query) {
-        req.props[attrname] = req.query[attrname];
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur inexistant" });
       }
-      console.log(req.props);
 
-      // Utilisez le modèle de schéma pour récupérer tous les utilisateurs de la base de données
-      User.deleteOne(req.props, (err, user) => {
-        if (err) {
-          throw err;
-        } else {
-          res.status(200).send("Utilisateur supprimé");
-        }
-      });
+      // Only the user or an admin can delete the user
+      if (req.user.id !== user.id && req.user.role !== "Admin") {
+        return res.status(401).json({ message: "Non autorisé" });
+      }
+
+      await user.remove();
+      res.json({ message: "Utilisateur supprimé" });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Erreur serveur");
