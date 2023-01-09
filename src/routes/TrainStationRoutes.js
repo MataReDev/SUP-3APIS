@@ -14,36 +14,39 @@ const resizeMiddleware = require('../middlewares/resize');
 
 router
     // Lister toutes les stations de trains
-        .get('/', (req, res) => {
-        let sort = req.query.sort || { name: 1 };
-
-        TrainStation.find()
-            .sort(sort)
-            .then(trainStations => res.status(200).send(trainStations))
-            .catch(err => res.status(500).send(err));
+    .get('/', (req, res) => {
+        TrainStation.find({}, (error, trainStations) => {
+            if (error) {
+              res.status(500).send(error);
+            } else {
+              res.send(trainStations);
+            }
+          });
     })
 
     // Créer une station de train
     .post('/', authMiddleware, resizeMiddleware, (req, res) => {
-        if (!req.user.admin) {
-            return res.status(403).send({ error: 'Seul les admins peuvent créer des stations de trains' });
+        try {
+            if (req.user.role !== 'Admin') {
+                return res.status(403).send({ error: 'Seul les admins peuvent créer des stations de trains' });
+            }
+            const trainStation = new TrainStation({
+                label: req.body.label,
+                image: req.body.imageGare,
+                open_hour: req.body.open_hour,
+                close_hour: req.body.close_hour
+            });
+            trainStation.save()
+            res.status(200).json({ trainStation });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Erreur serveur");
         }
-
-        let trainStation = new TrainStation({
-            name: req.body.name,
-            open_hour: req.body.open_hour,
-            close_hour: req.body.close_hour,
-            image: req.body.image
-        });
-        trainStation
-            .save()
-            .then(trainStation => res.status(200).send(trainStation))
-            .catch(err => res.status(500).send(err));
     })
 
-    // Récupérer une stastion de train grâce à son id
-    .get('/:id', (req, res) => {
-        TrainStation.findById(req.params.id)
+    // GET /trainstations/:label
+    .get('/:label', (req, res) => {
+        TrainStation.find({label: req.params.label})
             .then(trainStation => {
             if (!trainStation) {
                 return res.status(404).send({ error: 'Station de train introuvable' });
@@ -54,40 +57,51 @@ router
     })
 
     // Mettre à jour une station de trains
-    .put('/:id', authMiddleware, resizeMiddleware, (req, res) => {
-        if (!req.user.admin) {
-            return res.status(403).send({ error: 'Seul les admins peuvent mettre à jour les stations de trains' });
-        }
-
-        TrainStation.findByIdAndUpdate(req.params.id, {
-            name: req.body.name,
-            open_hour: req.body.open_hour,
-            close_hour: req.body.close_hour,
-            image: req.body.image
-        }, { new: true })
-            .then(trainStation => {
-            if (!trainStation) {
-                return res.status(404).send({ error: 'Station de train introuvable' });
+    .put('/:label', authMiddleware, resizeMiddleware, async (req, res) => {
+        try {
+            if (req.user.role !== 'Admin') {
+                return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
             }
-            res.status(200).send(trainStation);
-            })
-            .catch(err => res.status(500).send(err));
+            req.props = {};
+            
+            console.log(req.body.label);
+        
+            // Vérification si le role de l'utilisateur est suffisant pour accéder aux informations
+            if (req.body)
+            for (let attrname in req.body) {
+                console.log(attrname);
+                req.props[attrname] = req.body[attrname];
+            }
+            console.log(req.props);
+        
+            const trainStation = TrainStation.find({label: req.params.label})
+            // Utilisez le modèle de schéma pour récupérer tous les utilisateurs de la base de données
+            trainStation.update(req.props, (err, trainStation) => {
+                if (err) {
+                    throw err;
+                } else {
+                    res.status(200).send("Gare mise à jour");
+                }
+            });
+        } catch (err) {
+          console.error(err.message);
+          res.status(500).send("Erreur serveur");
+        }
     })
 
-    // Suprimmer une station de trains
-    .delete('/:id', authMiddleware, (req, res) => {
-        if (!req.user.admin) {
+    // DELETE /trainstation/:label
+    .delete('/:label', authMiddleware, async (req, res) => {
+        if (req.user.role !== 'Admin') {
             return res.status(403).send({ error: 'Seul les admins peuvent supprimer des stations de trains' });
         }
-
-        TrainStation.findByIdAndDelete(req.params.id)
-        .then(trainStation => {
-            if (!trainStation) {
-            return res.status(404).send({ error: 'Station de train introuvable' });
-            }
-            res.status(200).send(trainStation);
-        })
-        .catch(err => res.status(500).send(err));
+        
+        try{
+            await TrainStation.remove({label: req.params.label});
+            res.status(200).send("Gare suppimée")
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Erreur serveur");
+        }
     });
 
 module.exports = router

@@ -1,31 +1,27 @@
 const mongoose = require("mongoose");
 
 const TrainStationSchema = new mongoose.Schema({
-    id:{
-        type: Number,
+    label: {
+        type: String,
         unique: true,
         required: true
-    },
-    label: {
+    }, 
+    image: {
         type: String,
         required: true
     }, 
     open_hour: {
-        type: Date,
+        type: String,
         required: true
     }, 
     close_hour: {
-        type: Date,
+        type: String,
         required: true
     },
     trains: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Train'
-    }], 
-    image: {
-        type: String,
-        required: true
-    }
+    }]
 })
 
-module.exports = mongoose.model("TrainsStation", TrainStationSchema)
+module.exports = mongoose.model("TrainStation", TrainStationSchema)
