@@ -14,7 +14,7 @@ const router = express.Router();
 
 // User model
 const User = require("../models/UserModel");
-const auth = require("../middlewares/middleware.js");
+const auth = require("../middlewares/auth");
 
 // POST api/users/register
 router
