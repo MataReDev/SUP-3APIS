@@ -34,11 +34,19 @@ const app = express();
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const swaggerUi = require('swagger-ui-express'),
+swaggerDocument = require('./swagger.json');
+
 /* Gestion des routes pour l'uri */
 app.use("/user",userRoutes);
 app.use("/train",trainRoutes);
 app.use("/trainstation",trainStationRoutes);
 app.use("/ticket",ticketRoutes);
+app.use(
+    '/swagger',
+    swaggerUi.serve, 
+    swaggerUi.setup(swaggerDocument)
+  );
 
 /* AFFICHAGE DU PORT SUR LEQUEL ON EST */
 app.listen(PORT, () => {

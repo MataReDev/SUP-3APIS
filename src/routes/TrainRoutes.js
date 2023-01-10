@@ -15,11 +15,11 @@ const authMiddleware = require('../middlewares/auth');
 router
     // GET /train
     .get('/', async (req, res) => {
-        await Train.find({}, (error, trainStations) => {
+        await Train.find({}, (error, trains) => {
             if (error) {
               res.status(500).send(error);
             } else {
-              res.send(trainStations);
+              res.send(trains);
             }
         });
     })

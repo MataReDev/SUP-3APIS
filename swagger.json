@@ -1,0 +1,555 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://127.0.0.1:3000"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "User"
+      },
+      {
+        "name": "Train"
+      },
+      {
+        "name": "TrainStation"
+      },
+      {
+        "name": "Ticket"
+      }
+    ],
+    "paths": {
+      "/user/signup": {
+        "post": {
+          "tags": [
+            "User"
+          ],
+          "summary": "/user/signup",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "test@gmail.com"
+                    },
+                    "pseudo": {
+                      "type": "string",
+                      "example": "Test"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "TestPassword"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "Admin"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/user/login": {
+        "post": {
+          "tags": [
+            "User"
+          ],
+          "summary": "/user/login",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "goudalmathys@gmail.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "Mathystest"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/user/MataRed": {
+        "get": {
+          "tags": [
+            "User"
+          ],
+          "summary": "/user/{pseudo}",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "User"
+          ],
+          "summary": "/user/{pseudo}",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "goudalmathys@gmail.com"
+                    },
+                    "pseudo": {
+                      "type": "string",
+                      "example": "MataRed"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "Admin"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "Mathys.Password"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/user/Test": {
+        "delete": {
+          "tags": [
+            "User"
+          ],
+          "summary": "/user/{pseudo}",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/train": {
+        "get": {
+          "tags": [
+            "Train"
+          ],
+          "summary": "/train",
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Train"
+          ],
+          "summary": "/train",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "YESGO-101"
+                    },
+                    "label": {
+                      "type": "string",
+                      "example": "Train YESGO Paris St Lazarre - Caen"
+                    },
+                    "start_station": {
+                      "type": "string",
+                      "example": "Paris SL"
+                    },
+                    "end_station": {
+                      "type": "string",
+                      "example": "Gare de Caen"
+                    },
+                    "time_of_departure": {
+                      "type": "string",
+                      "example": "06:50"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/train/YESGO-101": {
+        "get": {
+          "tags": [
+            "Train"
+          ],
+          "summary": "/train/{id}",
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Train"
+          ],
+          "summary": "/train/{id}",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "example": "Train YESGO Paris St Lazarre - Caen"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Train"
+          ],
+          "summary": "/train/{id}",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/trainstation": {
+        "get": {
+          "tags": [
+            "TrainStation"
+          ],
+          "summary": "/trainstation",
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "TrainStation"
+          ],
+          "summary": "/trainstation",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "example": "Gare Rouen Rive Droite test"
+                    },
+                    "imageGare": {
+                      "type": "string",
+                      "example": "https://www.architecture-art-deco.fr/photos/rouen/medium/gare-art-deco02.jpg"
+                    },
+                    "open_hour": {
+                      "type": "string",
+                      "example": "06:00"
+                    },
+                    "close_hour": {
+                      "type": "string",
+                      "example": "22:00"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/trainstation/Paris Saint-Lazare": {
+        "get": {
+          "tags": [
+            "TrainStation"
+          ],
+          "summary": "/trainstation/{label}",
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "TrainStation"
+          ],
+          "summary": "/trainstation/{label}",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "open_hour": {
+                      "type": "string",
+                      "example": "04:00"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/trainstation/Gare Rouen Rive Droite test": {
+        "delete": {
+          "tags": [
+            "TrainStation"
+          ],
+          "summary": "/trainstation/{label}",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/ticket/book": {
+        "post": {
+          "tags": [
+            "Ticket"
+          ],
+          "summary": "/ticket/book",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "pseudo": {
+                      "type": "string",
+                      "example": "MataRed"
+                    },
+                    "train": {
+                      "type": "string",
+                      "example": "YESGO-100"
+                    },
+                    "isValidated": {
+                      "type": "boolean",
+                      "example": "false"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/ticket/validate": {
+        "put": {
+          "tags": [
+            "Ticket"
+          ],
+          "summary": "/ticket/validate",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "properties": {
+                    "pseudo": {
+                      "type": "string",
+                      "example": "MataRed"
+                    },
+                    "train": {
+                      "type": "string",
+                      "example": "YESGO-100"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }

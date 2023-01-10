@@ -24,7 +24,7 @@ router
           });
     })
 
-    // POST /trainstation/
+    // POST /trainstations
     .post('/', authMiddleware, resizeMiddleware, (req, res) => {
         try {
             if (req.user.role !== 'Admin') {
