@@ -18,8 +18,8 @@ const router = express.Router();
 const User = require("../models/UserModel");
 const auth = require("../middlewares/auth");
 
-// POST api/users/register
 router
+// POST api/users/signup
   .post("/signup", async (req, res) => {
     try {
       const { email, pseudo, password, role } = req.body;

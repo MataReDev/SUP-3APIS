@@ -13,6 +13,7 @@ const Train = require('../models/TrainModel');
 // Middleware
 const authMiddleware = require('../middlewares/auth');
 
+// Schéma pour vérif le format avec Joi
 const ticketSchema = Joi.object().keys({
   pseudo: Joi.string().required(),
   train: Joi.string().required(),
@@ -21,6 +22,7 @@ const ticketSchema = Joi.object().keys({
 
 // Book un ticket
 router
+  // POST /ticker/book
   .post('/book', authMiddleware , async (req, res) => {
     const result = ticketSchema.validate(req.body);
     if (result.error) {
@@ -44,6 +46,7 @@ router
       .catch(err => res.status(500).send(err));
   })
   
+  // POST /ticker/validate
   .post('/validate', authMiddleware , async (req, res) => {
     if (req.user.role !== "Employee" && req.user.role !== "Admin"){
       return res.status(401).json({ message: "Non autorisé" });

@@ -13,7 +13,7 @@ const authMiddleware = require('../middlewares/auth');
 const resizeMiddleware = require('../middlewares/resize');
 
 router
-    // Lister toutes les stations de trains
+    // GET /trainstations
     .get('/', (req, res) => {
         TrainStation.find({}, (error, trainStations) => {
             if (error) {
@@ -24,7 +24,7 @@ router
           });
     })
 
-    // Créer une station de train
+    // POST /trainstation/
     .post('/', authMiddleware, resizeMiddleware, (req, res) => {
         try {
             if (req.user.role !== 'Admin') {
@@ -56,7 +56,7 @@ router
             .catch(err => res.status(500).send(err));
     })
 
-    // Mettre à jour une station de trains
+    // PUT /trainstation/:label
     .put('/:label', authMiddleware, resizeMiddleware, async (req, res) => {
         try {
             if (req.user.role !== 'Admin') {

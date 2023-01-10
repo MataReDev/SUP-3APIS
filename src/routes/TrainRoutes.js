@@ -13,7 +13,7 @@ const TrainStation = require('../models/TrainStationModel');
 const authMiddleware = require('../middlewares/auth');
 
 router
-    // Lister tous les trains
+    // GET /train
     .get('/', async (req, res) => {
         await Train.find({}, (error, trainStations) => {
             if (error) {
@@ -24,7 +24,7 @@ router
         });
     })
 
-    // ADMIN - Créer un train
+    // POST /train
     .post('/', authMiddleware, async (req, res) => {
         try {
             if (req.user.role !== 'Admin') {
@@ -65,7 +65,7 @@ router
           }
     })
 
-    // ADMIN - Mettre à jour un train
+    // PUT /train/:id
     .put('/:id', authMiddleware, async (req, res) => {
         try {
             if (req.user.role !== 'Admin') {
@@ -98,7 +98,7 @@ router
         }
     })
 
-    // ADMIN - Supprimer un train
+    // DELETE /train/:id
     .delete('/:id', authMiddleware, async (req, res) => {
         if (req.user.role !== 'Admin') {
             return res.status(403).send({ error: 'Vous n\'êtes pas autorisé à faire cette action' });
